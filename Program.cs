@@ -1,3 +1,4 @@
+using DotNetEnv;
 using Graduation_project.Data;
 using Graduation_project.Services.Implementation;
 using Graduation_project.Services.IService;
@@ -12,12 +13,20 @@ using NSwag;
 using NSwag.Generation.Processors.Security;
 using System.Text;
 
+Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Database configuration
+var connectionString = Environment.GetEnvironmentVariable("MSSQL_URL") 
+                    ?? builder.Configuration.GetConnectionString("constr");
+
+if (string.IsNullOrEmpty(connectionString))
+    throw new InvalidOperationException("No connection string found!");
 
 builder.Services.AddDbContext<AppDbContext>(option =>
-            option.UseSqlServer(builder.Configuration.GetConnectionString("constr")));
+            option.UseSqlServer(connectionString));
 
 builder.Services.AddIdentity<AppUser, IdentityRole>()
           .AddEntityFrameworkStores<AppDbContext>()
