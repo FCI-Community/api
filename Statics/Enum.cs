@@ -1,5 +1,11 @@
 ﻿namespace GraduationProject.Statics
 {
+    public enum AccountStatus
+    {
+        Waiting,
+        Approved,
+        Rejected
+    }
     public enum Gender
     {
         Male,
@@ -13,8 +19,10 @@
     }
     public enum StaffRole
     {
+        Admin,
         Professor,
-        Assistant
+        Assistant,
+        Student
     }
     public enum TicketStatus
     {

@@ -1,14 +1,16 @@
 ﻿using GraduationProject.Statics;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
 namespace GraduationProject.Models
 {
-    public class AppUser
+    public class AppUser : IdentityUser
     {
-        public Guid Id { get; set; }
         public string FullName { get; set; }
         public string? ProfilePictureUrl { get; set; }
         public Gender gender { get; set; }
+
+        public StaffRole staffRole { get; set; }
         public StudentProfile? StudentProfile { get; set; }
 
         public List<Message> SentMessages { get; set; }
