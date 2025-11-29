@@ -48,6 +48,12 @@ builder.Services.AddSingleton<IFileProvider>(
 );
 
 // Token Configuration
+var tokenSecret = Environment.GetEnvironmentVariable("Token__Secret")
+                 ?? builder.Configuration["Token:Secret"];
+var tokenIssuer = Environment.GetEnvironmentVariable("Token__Issuer")
+                 ?? builder.Configuration["Token:Issuer"];
+var tokenAudience = Environment.GetEnvironmentVariable("Token__Audience")
+                 ?? builder.Configuration["Token:Audience"];
 
 builder.Services.AddAuthentication(
                 op =>
@@ -70,9 +76,9 @@ builder.Services.AddAuthentication(
                     o.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Token:Secret"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSecret)),
                         ValidateIssuer = true,
-                        ValidIssuer = builder.Configuration["Token:Issuer"],
+                        ValidIssuer = tokenIssuer
                         ValidateAudience = false,
                         ClockSkew = TimeSpan.Zero
                     };
