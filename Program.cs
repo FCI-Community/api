@@ -15,6 +15,13 @@ using System.Text;
 
 Env.Load();
 
+// Create folder if it doesn't exist
+var wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+if (!Directory.Exists(wwwRootPath))
+{
+    Directory.CreateDirectory(wwwRootPath);
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -37,7 +44,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 builder.Services.AddScoped<IGenerateToken, GenerateToken>();
 builder.Services.AddSingleton<IImageManagementService, ImageManagementService>();
 builder.Services.AddSingleton<IFileProvider>(
- new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))); ;
+    new PhysicalFileProvider(wwwRootPath)
+);
 
 // Token Configuration
 
