@@ -110,7 +110,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApiDocument(options =>
 {
     options.DocumentName = "v1";
-    options.Title = "Friendify API";
+    options.Title = "FCI Community API";
     options.Version = "v1";
 
     options.AddSecurity("Bearer", new NSwag.OpenApiSecurityScheme
@@ -147,7 +147,7 @@ var app = builder.Build();
     app.UseOpenApi(settings => settings.Path = "/openapi/v1.json");
 
     // Serve the NSwag UI; point the UI to the JSON above
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Friendify API"));
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "FCI Community API"));
 
 
 app.UseCors("CORSPolicy");
