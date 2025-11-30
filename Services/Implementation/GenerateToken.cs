@@ -1,4 +1,5 @@
-﻿using Graduation_project.Services.IService;
+﻿using DotNetEnv;
+using Graduation_project.Services.IService;
 using GraduationProject.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,6 +15,7 @@ namespace Graduation_project.Services.Implementation
         public GenerateToken(IConfiguration configuration)
         {
             _configuration = configuration;
+            Env.Load();
         }
         public string GetAndCreateToken(AppUser user)
         {
@@ -24,15 +26,26 @@ namespace Graduation_project.Services.Implementation
                 new Claim(ClaimTypes.Email, user.Email)
             };
 
-            var securityKey = _configuration["Token:Secret"];
-            var key = Encoding.ASCII.GetBytes(securityKey);
+            var tokenSecret = Environment.GetEnvironmentVariable("Token__Secret")
+                              ?? _configuration["Token:Secret"];
+            var tokenIssuer = Environment.GetEnvironmentVariable("Token__Issuer")
+                              ?? _configuration["Token:Issuer"];
+            var tokenAudience = Environment.GetEnvironmentVariable("Token__Audience")
+                              ?? _configuration["Token:Audience"];
+
+            if (string.IsNullOrWhiteSpace(tokenSecret))
+                throw new InvalidOperationException("Token secret is not configured.");
+
+            var key = Encoding.UTF8.GetBytes(tokenSecret);
+
             SigningCredentials signingCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
 
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(1),
-                Issuer = _configuration["Token:Issuer"],
+                Issuer = tokenIssuer,
+                Audience = tokenAudience,
                 SigningCredentials = signingCredentials,
                 NotBefore = DateTime.Now
             };

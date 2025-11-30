@@ -78,7 +78,7 @@ builder.Services.AddAuthentication(
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSecret)),
                         ValidateIssuer = true,
-                        ValidIssuer = tokenIssuer
+                        ValidIssuer = tokenIssuer,
                         ValidateAudience = false,
                         ClockSkew = TimeSpan.Zero
                     };
