@@ -23,7 +23,8 @@ namespace Graduation_project.Services.Implementation
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.staffRole.ToString())
             };
 
             var tokenSecret = Environment.GetEnvironmentVariable("Token__Secret")

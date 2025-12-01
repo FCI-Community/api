@@ -1,6 +1,7 @@
 ﻿using Graduation_project.DTOs;
 using Graduation_project.Repositories.Interfaces;
 using Graduation_project.Services.IService;
+using GraduationProject.Statics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -43,11 +44,103 @@ namespace Graduation_project.Controllers
         }
 
         [HttpDelete("delete-account/{userId}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAccount(string userId)
         {
             var (success, message) = await _authRepo.DeleteAccountAsync(userId);
             return Ok(new { success, message });
+        }
+
+        [HttpPost("admin-login")]
+        public async Task<IActionResult> AdminLogin([FromBody] LoginDto loginDto)
+        {
+            var (success, token, user, message) = await _authRepo.LoginAsync(loginDto);
+
+            if (!success)
+            {
+                return BadRequest(new { success, message });
+            }
+
+            if (user == null || user.staffRole != StaffRole.Admin)
+            {
+                return NotFound();
+            }
+
+            var response = new LoginResponseDto
+            {
+                Token = token,
+                Role = "admin",
+                Profile = new
+                {
+                    user.Id,
+                    user.FullName,
+                    user.Email,
+                    Role = user.staffRole.ToString()
+                }
+            };
+
+            return Ok(response);
+        }
+
+        [HttpPost("user-login")]
+        public async Task<IActionResult> UserLogin([FromBody] LoginDto loginDto)
+        {
+            var (success, token, user, message) = await _authRepo.LoginAsync(loginDto);
+
+            if (!success)
+            {
+                return BadRequest(new { success, message });
+            }
+
+            if (user == null)
+            {
+                return BadRequest(new { success=false, message= new[] { "User not found " } });
+            }
+
+            if (user.staffRole == StaffRole.Admin)
+            {
+                return NotFound();
+            }
+
+            string roleShort = user.staffRole switch
+            {
+                StaffRole.Professor => "prof",
+                StaffRole.Assistant => "assist",
+                StaffRole.Student => "student",
+                _ => "student"
+            };
+
+            object profile = new
+            {
+                user.Id,
+                user.FullName,
+                user.Email,
+                user.ProfilePictureUrl,
+                Role = user.staffRole.ToString(),
+                StudentProfile = user.StudentProfile == null ? null : new
+                {
+                    user.StudentProfile.StudentId,
+                    user.StudentProfile.JoinYear,
+                    user.StudentProfile.AcademicLevel
+                }
+            };
+
+            var response = new LoginResponseDto
+            {
+                Token = token,
+                Role = roleShort,
+                Profile = profile
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers([FromQuery] UserListQueryDto query)
+        {
+            var result = await _authRepo.GetUsersAsync(query);
+            return Ok(result);
         }
     }
 }
