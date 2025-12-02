@@ -11,6 +11,8 @@ namespace Graduation_project.Repositories.Interfaces
         Task<(bool Success, IEnumerable<string> Errors)> DeleteAccountAsync(string userId);
         Task<(bool Success, string Token, AppUser? User, IEnumerable<string> Errors)> LoginAsync(LoginDto loginDto);
         Task<PagedResult<UserListItemDto>> GetUsersAsync(UserListQueryDto query);
+        Task<AppUser?> GetUserProfileAsync(string userId);
+
 
     }
 }

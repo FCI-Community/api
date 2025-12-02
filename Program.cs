@@ -50,6 +50,12 @@ builder.Services.AddSingleton<IFileProvider>(
     new PhysicalFileProvider(wwwRootPath)
 );
 
+// Identity configuration
+builder.Services.Configure<IdentityOptions>(options =>
+{ 
+    options.User.AllowedUserNameCharacters += " ";
+});
+
 // Token Configuration
 var tokenSecret = Environment.GetEnvironmentVariable("Token__Secret")
                  ?? builder.Configuration["Token:Secret"];
@@ -83,6 +89,7 @@ builder.Services.AddAuthentication(
                         ValidateIssuer = true,
                         ValidIssuer = tokenIssuer,
                         ValidateAudience = false,
+                        ValidateLifetime = false,
                         ClockSkew = TimeSpan.Zero
                     };
                     o.Events = new JwtBearerEvents()

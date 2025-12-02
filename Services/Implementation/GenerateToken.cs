@@ -44,11 +44,9 @@ namespace Graduation_project.Services.Implementation
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(1),
                 Issuer = tokenIssuer,
                 Audience = tokenAudience,
                 SigningCredentials = signingCredentials,
-                NotBefore = DateTime.Now
             };
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();

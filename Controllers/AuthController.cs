@@ -5,6 +5,7 @@ using GraduationProject.Statics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Graduation_project.Controllers
 {
@@ -58,7 +59,7 @@ namespace Graduation_project.Controllers
 
             if (!success)
             {
-                return BadRequest(new { success, message });
+                return Unauthorized(new { success, message });
             }
 
             if (user == null || user.staffRole != StaffRole.Admin)
@@ -89,7 +90,7 @@ namespace Graduation_project.Controllers
 
             if (!success)
             {
-                return BadRequest(new { success, message });
+                return Unauthorized(new { success, message });
             }
 
             if (user == null)
@@ -141,6 +142,28 @@ namespace Graduation_project.Controllers
         {
             var result = await _authRepo.GetUsersAsync(query);
             return Ok(result);
+        }
+
+        [HttpGet("user-profile")]
+        [Authorize]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var user = await _authRepo.GetUserProfileAsync(userId);
+            if (user == null) return NotFound();
+
+            var dto = new UserProfileDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Role = user.staffRole.ToString(),
+                ProfilePictureUrl = user.ProfilePictureUrl
+            };
+
+            return Ok(dto);
         }
     }
 }
