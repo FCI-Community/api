@@ -301,5 +301,13 @@ namespace Graduation_project.Repositories.Implementation
                 Items = items
             };
         }
+
+        public async Task<AppUser?> GetUserProfileAsync(string userId)
+        {
+            return await _db.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync();
+        }
     }
 }
