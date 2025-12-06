@@ -143,6 +143,31 @@ namespace Graduation_project.Repositories.Implementation
 
             var studentId = $"{studentCreateDto.JoinYear}{nextSerial:0000}";
 
+            int majorIdToAssign;
+            if (studentCreateDto.MajorId.HasValue && studentCreateDto.MajorId.Value > 0)
+            {
+                // ensure major exists
+                var majExists = await _db.Majors.AnyAsync(m => m.Id == studentCreateDto.MajorId.Value);
+                majorIdToAssign = majExists ? studentCreateDto.MajorId.Value : -1;
+            }
+            else
+            {
+                majorIdToAssign = -1;
+            }
+
+            if (majorIdToAssign == -1)
+            {
+                // get or create default General major
+                var defaultMajor = await _db.Majors.FirstOrDefaultAsync(m => m.Code.ToLower() == "general");
+                if (defaultMajor == null)
+                {
+                    defaultMajor = new Major { Code = "general", Name = "General" };
+                    _db.Majors.Add(defaultMajor);
+                    await _db.SaveChangesAsync();
+                }
+                majorIdToAssign = defaultMajor.Id;
+            }
+
             var studentProfile = new StudentProfile
             {
                 AppUserId = user.Id,
@@ -150,7 +175,8 @@ namespace Graduation_project.Repositories.Implementation
                 JoinYear = studentCreateDto.JoinYear,
                 AcademicLevel = 1,
                 CurrentSemester = SemesterType.First,
-                ExpectedGradYear = studentCreateDto.JoinYear + 4
+                ExpectedGradYear = studentCreateDto.JoinYear + 4,
+                MajorId = majorIdToAssign
             };
 
             _db.StudentProfiles.Add(studentProfile);

@@ -46,6 +46,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 builder.Services.AddScoped<IGenerateToken, GenerateToken>();
 builder.Services.AddSingleton<IImageManagementService, ImageManagementService>();
 builder.Services.AddScoped<IAuth, AuthRepository>();
+builder.Services.AddScoped<IMajorRepository, MajorRepository>();
 builder.Services.AddSingleton<IFileProvider>(
     new PhysicalFileProvider(wwwRootPath)
 );
