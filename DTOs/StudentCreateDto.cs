@@ -23,5 +23,8 @@ namespace Graduation_project.DTOs
 
         [JsonPropertyName("password")]
         public string? Password { get; set; }
+
+        [JsonPropertyName("major_id")]
+        public int? MajorId { get; set; }
     }
 }
