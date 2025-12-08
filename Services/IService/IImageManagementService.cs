@@ -3,6 +3,6 @@
     public interface IImageManagementService
     {
         Task<string> AddImageAsync(IFormFile file, string src);
-        void DeleteImageAsync(string src);
+        Task DeleteImageAsync(string src);
     }
 }

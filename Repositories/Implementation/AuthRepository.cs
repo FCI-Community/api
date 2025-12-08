@@ -195,7 +195,7 @@ namespace Graduation_project.Repositories.Implementation
             {
                 try
                 {
-                     _imageService.DeleteImageAsync(user.ProfilePictureUrl);
+                    await _imageService.DeleteImageAsync(user.ProfilePictureUrl);
                 }
                 catch (Exception)
                 {
