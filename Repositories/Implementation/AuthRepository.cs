@@ -48,7 +48,7 @@ namespace Graduation_project.Repositories.Implementation
 
             var user = new AppUser()
             {
-                UserName = adminCreateDto.Email,
+                UserName = adminCreateDto.Username,
                 FullName = adminCreateDto.FullName,
                 Email = adminCreateDto.Email,
                 staffRole = StaffRole.Admin
@@ -72,7 +72,7 @@ namespace Graduation_project.Repositories.Implementation
 
             var user = new AppUser
             {
-                UserName =teacherCreateDto.FullName,
+                UserName =teacherCreateDto.Username,
                 Email =teacherCreateDto.Email,
                 FullName =teacherCreateDto.FullName,
                 staffRole =teacherCreateDto.Role?.ToLower() switch
@@ -107,7 +107,7 @@ namespace Graduation_project.Repositories.Implementation
 
             var user = new AppUser
             {
-                UserName = studentCreateDto.FullName,
+                UserName = studentCreateDto.Username,
                 Email = studentCreateDto.Email,
                 FullName = studentCreateDto.FullName,
                 staffRole = StaffRole.Student,
@@ -191,7 +191,16 @@ namespace Graduation_project.Repositories.Implementation
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return (false, new[] { "User not found" });
 
-            _imageService.DeleteImageAsync(user.ProfilePictureUrl);
+            if (!string.IsNullOrWhiteSpace(user.ProfilePictureUrl))
+            {
+                try
+                {
+                     _imageService.DeleteImageAsync(user.ProfilePictureUrl);
+                }
+                catch (Exception)
+                {
+                }
+            }
 
             var delete = await _userManager.DeleteAsync(user);
             if (!delete.Succeeded) return (false, delete.Errors.Select(e => e.Description));
@@ -307,6 +316,7 @@ namespace Graduation_project.Repositories.Implementation
                {
                   Id = u.Id,
                   FullName = u.FullName,
+                  UserName = u.UserName,
                   Email = u.Email,
                   ProfilePictureUrl = u.ProfilePictureUrl,
                   Role = u.staffRole == StaffRole.Admin ? "admin"
