@@ -166,5 +166,27 @@ namespace Graduation_project.Controllers
 
             return Ok(dto);
         }
+
+        [HttpGet("user-ById/{userId}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserById(string userId)
+        {
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var user = await _authRepo.GetUserProfileAsync(userId);
+            if (user == null) return NotFound();
+
+            var dto = new UserProfileDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Username = user.UserName,
+                Email = user.Email,
+                Role = user.staffRole.ToString(),
+                ProfilePictureUrl = user.ProfilePictureUrl
+            };
+
+            return Ok(dto);
+        }
     }
 }
