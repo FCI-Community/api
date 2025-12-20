@@ -158,6 +158,7 @@ namespace Graduation_project.Controllers
             {
                 Id = user.Id,
                 FullName = user.FullName,
+                Username = user.UserName,
                 Email = user.Email,
                 Role = user.staffRole.ToString(),
                 ProfilePictureUrl = user.ProfilePictureUrl
