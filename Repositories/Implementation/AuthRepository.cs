@@ -225,7 +225,10 @@ namespace Graduation_project.Repositories.Implementation
 
         public async Task<(bool Success, string Token, AppUser? User, IEnumerable<string> Errors)> LoginAsync(LoginDto loginDto)
         {
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            var user = await _userManager.Users
+                      .Include(u => u.StudentProfile)
+                      .SingleOrDefaultAsync(u => u.Email == loginDto.Email);
+
             if (user == null)
                 return (false, string.Empty, null, new[] { "Invalid credentials" });
 
