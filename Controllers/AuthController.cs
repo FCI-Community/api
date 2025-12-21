@@ -30,6 +30,7 @@ namespace Graduation_project.Controllers
 
         [HttpPost("admin-register")]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminRegister([FromForm] AdminCreateDto adminCreateDto)
         {
             var (success, message) = await _authRepo.CreateAdminAsync(adminCreateDto);
@@ -38,6 +39,7 @@ namespace Graduation_project.Controllers
 
         [HttpPost("student-register")]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> StudentRegister([FromForm] StudentCreateDto studentCreateDto)
         {
             var (success, studentId, message) = await _authRepo.CreateStudentAsync(studentCreateDto);
