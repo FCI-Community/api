@@ -30,6 +30,7 @@ namespace Graduation_project.Controllers
 
         [HttpPost("admin-register")]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminRegister([FromForm] AdminCreateDto adminCreateDto)
         {
             var (success, message) = await _authRepo.CreateAdminAsync(adminCreateDto);
@@ -38,6 +39,7 @@ namespace Graduation_project.Controllers
 
         [HttpPost("student-register")]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> StudentRegister([FromForm] StudentCreateDto studentCreateDto)
         {
             var (success, studentId, message) = await _authRepo.CreateStudentAsync(studentCreateDto);
@@ -158,6 +160,29 @@ namespace Graduation_project.Controllers
             {
                 Id = user.Id,
                 FullName = user.FullName,
+                Username = user.UserName,
+                Email = user.Email,
+                Role = user.staffRole.ToString(),
+                ProfilePictureUrl = user.ProfilePictureUrl
+            };
+
+            return Ok(dto);
+        }
+
+        [HttpGet("user-ById/{userId}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserById(string userId)
+        {
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var user = await _authRepo.GetUserProfileAsync(userId);
+            if (user == null) return NotFound();
+
+            var dto = new UserProfileDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Username = user.UserName,
                 Email = user.Email,
                 Role = user.staffRole.ToString(),
                 ProfilePictureUrl = user.ProfilePictureUrl

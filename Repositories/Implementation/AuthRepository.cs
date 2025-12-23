@@ -46,6 +46,11 @@ namespace Graduation_project.Repositories.Implementation
         {
             await EnsureRolesAsync();
 
+            if (await _userManager.FindByEmailAsync(adminCreateDto.Email) != null)
+            {
+                return (false, new[] { "Email is already in use" });
+            }
+
             var user = new AppUser()
             {
                 UserName = adminCreateDto.Username,
@@ -69,6 +74,11 @@ namespace Graduation_project.Repositories.Implementation
         public async Task<(bool Success, IEnumerable<string> Errors)> CreateTeacherAsync(TeacherCreateDto teacherCreateDto)
         {
              await EnsureRolesAsync();
+
+            if (await _userManager.FindByEmailAsync(teacherCreateDto.Email) != null)
+            {
+                return (false, new[] { "Email is already in use" });
+            }
 
             var user = new AppUser
             {
@@ -104,6 +114,11 @@ namespace Graduation_project.Repositories.Implementation
         public async Task<(bool Success, string StudentId, IEnumerable<string> Errors)> CreateStudentAsync(StudentCreateDto studentCreateDto)
         {
             await EnsureRolesAsync();
+
+            if (await _userManager.FindByEmailAsync(studentCreateDto.Email) != null)
+            {
+                return (false, string.Empty, new[] { "Email is already in use" });
+            }
 
             var user = new AppUser
             {
@@ -210,7 +225,10 @@ namespace Graduation_project.Repositories.Implementation
 
         public async Task<(bool Success, string Token, AppUser? User, IEnumerable<string> Errors)> LoginAsync(LoginDto loginDto)
         {
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            var user = await _userManager.Users
+                      .Include(u => u.StudentProfile)
+                      .SingleOrDefaultAsync(u => u.Email == loginDto.Email);
+
             if (user == null)
                 return (false, string.Empty, null, new[] { "Invalid credentials" });
 

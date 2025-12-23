@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -49,9 +48,7 @@ builder.Services.AddScoped<IAuth, AuthRepository>();
 builder.Services.AddScoped<IMajorRepository, MajorRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
-builder.Services.AddSingleton<IFileProvider>(
-    new PhysicalFileProvider(wwwRootPath)
-);
+
 
 // Identity configuration
 builder.Services.Configure<IdentityOptions>(options =>
@@ -166,8 +163,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseStaticFiles();
 
 app.MapControllers();
 
