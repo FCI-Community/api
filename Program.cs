@@ -47,6 +47,7 @@ builder.Services.AddScoped<IGenerateToken, GenerateToken>();
 builder.Services.AddSingleton<IImageManagementService, ImageManagementService>();
 builder.Services.AddScoped<IAuth, AuthRepository>();
 builder.Services.AddScoped<IMajorRepository, MajorRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
 builder.Services.AddSingleton<IFileProvider>(
     new PhysicalFileProvider(wwwRootPath)

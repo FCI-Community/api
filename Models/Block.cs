@@ -8,6 +8,5 @@
         public string BlockedId { get; set; } 
         public AppUser Blocked { get; set; }
 
-
     }
 }
