@@ -27,7 +27,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Database configuration
-var connectionString = Environment.GetEnvironmentVariable("MSSQL_URL") 
+var connectionString = Environment.GetEnvironmentVariable("MSSQL_URL")
                     ?? builder.Configuration.GetConnectionString("constr");
 
 if (string.IsNullOrEmpty(connectionString))
@@ -52,7 +52,7 @@ builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>(
 
 // Identity configuration
 builder.Services.Configure<IdentityOptions>(options =>
-{ 
+{
     options.User.AllowedUserNameCharacters += " ";
 });
 
@@ -149,11 +149,11 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-    // Serve the OpenAPI/Swagger JSON at /openapi/v1.json
-    app.UseOpenApi(settings => settings.Path = "/openapi/v1.json");
+// Serve the OpenAPI/Swagger JSON at /openapi/v1.json
+app.UseOpenApi(settings => settings.Path = "/openapi/v1.json");
 
-    // Serve the NSwag UI; point the UI to the JSON above
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "FCI Community API"));
+// Serve the NSwag UI; point the UI to the JSON above
+app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "FCI Community API"));
 
 
 app.UseCors("CORSPolicy");
@@ -169,4 +169,3 @@ app.MapControllers();
 app.MapGet("/", () => "Hello World!");
 
 app.Run();
-
