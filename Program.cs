@@ -34,7 +34,7 @@ if (string.IsNullOrEmpty(connectionString))
     throw new InvalidOperationException("No connection string found!");
 
 builder.Services.AddDbContext<AppDbContext>(option =>
-            option.UseSqlServer(connectionString));
+            option.UseAzureSql(connectionString));
 
 builder.Services.AddIdentity<AppUser, IdentityRole>()
           .AddEntityFrameworkStores<AppDbContext>()
