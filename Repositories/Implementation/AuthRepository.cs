@@ -363,5 +363,34 @@ namespace Graduation_project.Repositories.Implementation
                 .Where(u => u.Id == userId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<string> ChangePasswordAsync(string userId, string currentPassword, string newPassword, string confirmNewPassword)
+        {
+            // Basic validation
+            if (string.IsNullOrWhiteSpace(userId)) return "Error Invalid user id";
+
+            if (string.IsNullOrWhiteSpace(currentPassword) ||
+                string.IsNullOrWhiteSpace(newPassword) ||
+                string.IsNullOrWhiteSpace(confirmNewPassword)
+               )
+                return "Error Passwords cannot be empty";
+            if (newPassword != confirmNewPassword) return "Error New passwords do not match";
+
+            // Find user
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return "Error User not found";
+
+            // Attempt change
+            var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+            if (result.Succeeded)
+            {
+                return "Success Password changed";
+            }
+
+            // errors readable message
+            var errors = string.Join("; ", result.Errors
+                        .Select(e => string.IsNullOrWhiteSpace(e.Description) ? e.Code : e.Description));
+            return "Error " + errors;
+        }
     }
 }

@@ -190,5 +190,22 @@ namespace Graduation_project.Controllers
 
             return Ok(dto);
         }
+
+        [Authorize]
+        [HttpPut("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDTO)
+        {
+            if (changePasswordDTO == null)
+            {
+                return BadRequest();
+            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _authRepo.ChangePasswordAsync(userId, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword, changePasswordDTO.ConfirmNewPassword);
+            if (result.StartsWith("Error"))
+            {
+                return BadRequest(result);
+            }
+            return Ok("Password changed successfully");
+        }
     }
 }
