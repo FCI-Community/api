@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>اختبار الشات - Pure SignalR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        #messages {
+            background: #f8f9fa;
+            padding: 15px;
+            height: 500px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+        }
+
+        .msg {
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .sent {
+            background: #d1f0d1;
+            margin-left: auto;
+        }
+
+        .received {
+            background: #e3e3e3;
+        }
+
+        .small {
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 اختبار الشات - Pure SignalR (بدون Hybrid)</h1>
+
+    <label>Token (Bearer):</label><br>
+    <input id="token" style="width:700px" placeholder="paste your JWT token" /><br><br>
+
+    <label>Receiver ID:</label><br>
+    <input id="receiverId" placeholder="ID الشخص اللي هتبعتله" style="width:300px" /><br><br>
+
+    <button onclick="connect()">Connect SignalR</button>
+    <button onclick="disconnect()">Disconnect</button>
+
+    <hr>
+    <h3>Send Message</h3>
+    <input id="message" placeholder="اكتب الرسالة" style="width:400px" />
+    <button onclick="sendMsg()">إرسال (invoke)</button>
+
+    <hr>
+    <h3>الرسائل</h3>
+    <div id="messages"></div>
+
+    <script>
+    let connection = null;
+
+    async function connect() {
+      const token = document.getElementById("token").value.trim();
+      if (!token) return alert("حط التوكن!");
+
+      connection = new signalR.HubConnectionBuilder()
+        .withUrl("/chatHub?access_token=" + token)
+        .withAutomaticReconnect()
+        .build();
+
+      connection.on("ReceiveMessage", (data) => {
+        addMessage(data, "received");
+      });
+
+      connection.on("MessageSent", (data) => {
+        addMessage(data, "sent");
+      });
+
+      connection.on("MessageSeen", (data) => {
+        console.log(`👁️ Message ${data.msg_id} seen`);
+      });
+
+      await connection.start();
+      alert("✅ Connected to Pure SignalR");
+    }
+
+    function disconnect() {
+      if (connection) connection.stop();
+    }
+
+    async function sendMsg() {
+      if (!connection) return alert("Connect أولاً");
+      const receiverId = document.getElementById("receiverId").value.trim();
+      const msg = document.getElementById("message").value.trim();
+      if (!receiverId || !msg) return alert("اكتب الـ ID والرسالة");
+
+      await connection.invoke("SendMessage", receiverId, msg);
+      document.getElementById("message").value = "";
+    }
+
+    function addMessage(data, type) {
+      const div = document.getElementById("messages");
+      const isReceived = type === "received";
+
+      const html = `
+        <div class="msg ${isReceived ? 'received' : 'sent'}">
+          <strong>${isReceived ? 'من: ' + data.sender_id : 'أنت'}</strong><br>
+          ${data.msg}<br>
+          <span class="small">
+            ${new Date(data.timestamp).toLocaleString('ar-EG')}
+            | ID: ${data.msg_id}
+          </span>
+          ${isReceived ? `<button onclick="markSeen(${data.msg_id})" style="font-size:0.75em">✅ Mark as Seen</button>` : ''}
+        </div>`;
+
+      div.innerHTML += html;
+      div.scrollTop = div.scrollHeight;
+    }
+
+    async function markSeen(msgId) {
+      if (!connection) return;
+      await connection.invoke("MarkAsSeen", msgId);
+      alert(`✅ Marked message ${msgId} as seen`);
+    }
+    </script>
+</body>
+</html>

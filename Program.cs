@@ -1,5 +1,6 @@
 using DotNetEnv;
 using Graduation_project.Data;
+using Graduation_project.Hubs;
 using Graduation_project.Repositories.Implementation;
 using Graduation_project.Repositories.Interfaces;
 using Graduation_project.Services.Implementation;
@@ -92,10 +93,35 @@ builder.Services.AddAuthentication(
                         ValidateLifetime = false,
                         ClockSkew = TimeSpan.Zero
                     };
+                    //o.Events = new JwtBearerEvents()
+                    //{
+                    //    OnMessageReceived = context =>
+                    //    {
+                    //        var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                    //        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                    //        {
+                    //            context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                    //        }
+                    //        else
+                    //        {
+                    //            // Fallback to cookie
+                    //            var token = context.Request.Cookies["token"];
+                    //            context.Token = token;
+                    //        }
+                    //        return Task.CompletedTask;
+                    //    }
+                    //};
                     o.Events = new JwtBearerEvents()
                     {
                         OnMessageReceived = context =>
                         {
+                            var accessToken = context.Request.Query["access_token"].FirstOrDefault();
+                            if (!string.IsNullOrEmpty(accessToken))
+                            {
+                                context.Token = accessToken;
+                                return Task.CompletedTask;
+                            }
+
                             var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
                             if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                             {
@@ -103,7 +129,6 @@ builder.Services.AddAuthentication(
                             }
                             else
                             {
-                                // Fallback to cookie
                                 var token = context.Request.Cookies["token"];
                                 context.Token = token;
                             }
@@ -113,6 +138,10 @@ builder.Services.AddAuthentication(
                 });
 // Add services to the container.
 builder.Services.AddControllers();
+
+// SignalR configuration
+builder.Services.AddSignalR();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApiDocument(options =>
 {
@@ -148,7 +177,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
+app.UseStaticFiles();
 // Serve the OpenAPI/Swagger JSON at /openapi/v1.json
 app.UseOpenApi(settings => settings.Path = "/openapi/v1.json");
 
@@ -167,5 +196,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/", () => "Hello World!");
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();
